@@ -7,8 +7,10 @@ Created on Thu Sep  3 11:39:38 2020
 Варианты поворота из исходного в начальное положение:
     1. До совмещения оси х с вектором v по кратчайшему
     2. Поворот вокруг v на угол b (шаг 20-30 град)
+        (более статистически достоверный)
 
-Здесь второй вариант, более статистически достоверный.
+Здесь сохраняем шесть чисел, интеграл освещённости по каждой нормали.
+
 """
 import sys
 folder = r'/mnt/D/Yandex/CubeSat/Articles/2020 JATM/py/'
@@ -26,15 +28,19 @@ def rotateOrts(Orts, q):
         OrtsR.append(quat.rotate(ort, q))
     return OrtsR
 
+# OrtNames = ['X', 'Y', 'Z', '-X', '-Y', '-Z']
 Orts = [[1,0,0], [0,1,0], [0,0,1], [-1,0,0], [0,-1,0], [0,0,-1]]
-Weights = np.array([3,3,1,3,3,0])
-filename = 'f3U_5'
+Weights = np.ones([6, 1])
+filename = 'cube'
 
-OrtNames = ['X', 'Y', 'Z', '-X', '-Y', '-Z']
+def NormalsCos(alpha, V, Sun, Orts):
+    """ Calculate cos(beta) for one turn
+    alpha - vector [0..2*pi]
+    V - axis of initial rotation
+    Sun - sunlight vector
+    Orts - list of normal vectors
 
-
-def NormalsCos(alpha, V, Sun, Orts, Weights):
-    """ Calculate cos(beta) for one turn """
+    """
     Vx = V[0]
     Vy = V[1]
     Vz = V[2]
@@ -53,7 +59,7 @@ def NormalsCos(alpha, V, Sun, Orts, Weights):
 
 
 def integrateNormals(N, da, aMax):
-    ETotal = 0
+    ETotal =
     for n in N:
         ETotal += da*np.sum(n[:-1])/aMax
     return ETotal
