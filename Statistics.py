@@ -3,6 +3,12 @@
 """
 Created on Thu Sep  3 11:39:38 2020
 @author: Alexander Lelekov
+
+Варианты поворота из исходного в начальное положение:
+    1. До совмещения оси х с вектором v по кратчайшему
+    2. Поворот вокруг v на угол b (шаг 20-30 град)
+
+Здесь второй вариант, более статистически достоверный.
 """
 import sys
 folder = r'/mnt/D/Yandex/CubeSat/Articles/2020 JATM/py/'
@@ -21,13 +27,14 @@ def rotateOrts(Orts, q):
     return OrtsR
 
 Orts = [[1,0,0], [0,1,0], [0,0,1], [-1,0,0], [0,-1,0], [0,0,-1]]
-Weights = np.array([2,2,1,2,2,0])
-Weights = np.ones(6)
+Weights = np.array([3,3,1,3,3,0])
+filename = 'f3U_5'
 
 OrtNames = ['X', 'Y', 'Z', '-X', '-Y', '-Z']
 
 
 def NormalsCos(alpha, V, Sun, Orts, Weights):
+    """ Calculate cos(beta) for one turn """
     Vx = V[0]
     Vy = V[1]
     Vz = V[2]
@@ -57,50 +64,30 @@ da = a[1]
 aMax = a[-1]
 Sun = [0,0,1]
 
-NPoints = 300
+db = 30
+b = np.linspace(0, 360-db, int(360/db)) # поворот на начальное - вокруг v на угол b
+NPoints = 150
 Q = quat.fibonacciSphere(samples=NPoints)
 
-OrtNames = ['X', 'Y', 'Z', '-X', '-Y', '-Z']
-Weights = np.array([6,6,4,6,6,0])
-E = np.zeros((NPoints, NPoints))
-print('Total %d cases..'%(NPoints**2,))
-i = 0
+E = np.zeros((NPoints, NPoints, len(b)))
+print('Total %d cases..'%(NPoints**2*len(b),))
+
 for i in range(NPoints):
     # повороты от исходного положения куба
-    q = quat.quatAv2Bv([0,0,1], Q[i])
-    OrtsR = rotateOrts(Orts, q)
-    for j in range(NPoints):
-        N = NormalsCos(a, Q[j], Sun, OrtsR, Weights)
-        E[i,j] = integrateNormals(N, da, aMax)
+    for k in range(len(b)):
+        q = quat.create(b[k], Q[i])
+        OrtsR = rotateOrts(Orts, q)
+        for j in range(NPoints):
+            N = NormalsCos(a, Q[j], Sun, OrtsR, Weights)
+            E[i,j,k] = integrateNormals(N, da, aMax)
     print('+ %d of %d'%(i,NPoints))
 
 
 
-data = {'w':Weights, 'E':E, 'N':NPoints}
-with open(folder+r'/c12U_5.pickle', 'wb') as f:
+data = {'w':Weights, 'E':E.flatten()}
+with open(folder +filename+ '.pickle', 'wb') as f:
     pickle.dump(data, f)
+    print('Data saved...')
 
-
-
-# ------ Статистика
-files = ['c1U_6', 'c1U_5', 'cxU_1']
-
-plt.clf()
-for fName in files:
-    with open(folder+fName+'.pickle', 'rb') as f:
-        data = pickle.load(f)
-    E = data['E']
-    if fName=='cxU_1':
-        E = 5*E
-
-    hist, bins = np.histogram(E, bins=100, density=True)
-    bin_centers = (bins[1:]+bins[:-1])*0.5
-    plt.plot(bin_centers, hist)
-
-plt.legend(files)
-
-
-import statistics as st
-print('mean %.2f, stDev %.2f'%(st.mean(E.flatten()), st.stdev(E.flatten())))
 
 
