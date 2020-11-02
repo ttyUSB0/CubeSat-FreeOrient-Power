@@ -32,7 +32,6 @@ def rotateOrts(Orts, q):
 # OrtNames = ['X', 'Y', 'Z', '-X', '-Y', '-Z']
 Orts = [[1,0,0], [0,1,0], [0,0,1], [-1,0,0], [0,-1,0], [0,0,-1]]
 Weights = np.ones([6, 1])
-filename = 'cube'
 
 def NormalsCos(alpha, V, Sun, Orts):
     """ Calculate cos(beta) for one turn
@@ -86,7 +85,7 @@ for i in range(NPoints):
 
 
 data = {'E':E, 'NPoints':NPoints, 'Q':Q, 'b':b, 'a':a}
-with open(folder +filename+ '.pickle', 'wb') as f:
+with open(folder + 'cube.pickle', 'wb') as f:
     pickle.dump(data, f)
     print('Data saved...')
 

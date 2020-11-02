@@ -12,30 +12,63 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-files = ['f1U_6', 'f1U_5', 'f1U_y', 'f1U_z']
+# ----------- Read data
+with open(folder + 'cube.pickle', 'rb') as f:
+    data = pickle.load(f)
 
-plt.clf()
-D = []
-for fName in files:
-    with open(folder+fName+'.pickle', 'rb') as f:
-        data = pickle.load(f)
-    D.append({'E':data['E'].flatten(), 'w':data['w']})
-    E = data['E']
-    if (fName=='f1U_y') or (fName=='f1U_z'):
-        E = 5*E
+E = data['E']
+# flatten E, with 6 rows of mean cos(phi), for each cube normal
+E = E.transpose([3,0,2,1]).reshape([6, -1]).transpose()
+NPoints = data['NPoints']
+Q = data['Q']
+b = data['b']
+a = data['a']
+del data
+# -----------
 
-    hist, bins = np.histogram(E, bins=100, density=True)
+
+# OrtNames = ['X', 'Y', 'Z', '-X', '-Y', '-Z']
+
+# 1U
+Sats = [{'name':'Full', 'w':np.array([1,1,1,1,1,1])},
+        {'name':'5 side', 'w':np.array([1,1,1,1,1,0])},
+        {'name':'Flower', 'w':np.array([0,0,5,0,0,0])},
+        {'name':'T-shirt', 'w':np.array([1,0,3,1,0,0])}]
+
+# 2U
+Sats = [{'name':'Full', 'w':np.array([2,2,1,2,2,1])},
+        {'name':'Fail1', 'w':np.array([2,1,1,2,2,1])},
+        {'name':'5 side', 'w':np.array([2,2,1,2,2,0])},
+        {'name':'Flower', 'w':np.array([0,0,2*4+1,0,0,0])},
+        {'name':'T-shirt', 'w':np.array([2,0,5,2,0,0])},
+        {'name':'Legs', 'w':np.array([2,4,1,2,4,0])},
+        {'name':'Foldscreen', 'w':np.array([2*5,0,0,0,0,0])}]
+
+# 3U
+Sats = [{'name':'Full', 'w':np.array([3,3,1,3,3,1])},
+        {'name':'Fail1', 'w':np.array([3,2,1,3,3,1])},
+        {'name':'5 side', 'w':np.array([3,3,1,3,3,0])},
+        {'name':'Flower', 'w':np.array([0,0,3*4+1,0,0,0])},
+        {'name':'T-shirt', 'w':np.array([3,0,3*2+1,3,0,0])},
+        {'name':'Legs', 'w':np.array([3,2*3,1,3,2*3,0])},
+        {'name':'Shuttlecock', 'w':np.array([6,6,1,6,6,0])},
+        {'name':'Foldscreen', 'w':np.array([3*5,0,0,0,0,0])}]
+
+# ----------- Plot dfs
+plt.figure(num=None, figsize=(7.16, 5), dpi=80)
+Lgnd = []
+for Var in Sats:
+    # apply weigths, sum over normals
+    e = np.sum(E * Var['w'], axis=1)
+
+    hist, bins = np.histogram(e, bins=100, density=True)
     bin_centers = (bins[1:]+bins[:-1])*0.5
     plt.plot(bin_centers, hist)
 
-    print('%s: mean %.2f, 0.9 in (%.2f-%.2f)'%(fName, np.mean(E), np.percentile(E, 5), np.percentile(E, 95)))
+    Lgnd.append(Var['name'])
+    print('%s: mean %.2f, std %.2f, 0.9 in (%.2f-%.2f)'%(Var['name'],
+        np.mean(e), np.std(e), np.percentile(e, 5), np.percentile(e, 95)))
 
-plt.legend(files)
+plt.legend(Lgnd)
 
-
-
-
-plt.savefig(folder+'1U.svg')
-
-
-
+plt.savefig(folder+'res3U.svg')
