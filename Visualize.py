@@ -4,7 +4,7 @@
 Created on Wed Oct 14 16:34:58 2020
 @author: alex
 
-Статистика
+Calculate and plot statistics
 """
 folder = r'/mnt/D/Yandex/CubeSat/Articles/2020 JATM/py/'
 import pickle
@@ -66,8 +66,8 @@ for Var in Sats:
     plt.plot(bin_centers, hist)
 
     Lgnd.append(Var['name'])
-    print('%s: mean %.2f, std %.2f, 0.9 in (%.2f-%.2f)'%(Var['name'],
-        np.mean(e), np.std(e), np.percentile(e, 5), np.percentile(e, 95)))
+    print('%s: mean %.2f, std %.2f, 0.9 in (%.2f-%.2f), minmax %.2f-%.2f'%(Var['name'],
+        np.mean(e), np.std(e), np.percentile(e, 5), np.percentile(e, 95), min(e), max(e)))
 
 plt.legend(Lgnd)
 

@@ -4,12 +4,10 @@
 Created on Thu Sep  3 11:39:38 2020
 @author: Alexander Lelekov
 
-Варианты поворота из исходного в начальное положение:
-    1. До совмещения оси х с вектором v по кратчайшему
-    2. Поворот вокруг v на угол b (шаг 20-30 град)
-        (более статистически достоверный)
+Estimation of the CubeSat's available energy for free-orientation scenario
 
-Здесь сохраняем шесть чисел, интеграл освещённости по каждой нормали.
+!!! This is a script, and must be started in IPython console in hand mode.
+
 Here we store six numbers, the integrals of the illumination along each normal.
 """
 import sys
