@@ -13,6 +13,7 @@ I execute code (python3) in IPython console in Spyder (Anaconda) in Debian10. Th
 
 ## Statistics.py
 I provide results of statistics calculation in file "cube.pickle", but you can get it yourself with desired parameters:
+
     a = np.linspace(0, 2 * np.pi, 180) defines tolerance of integral. Change 180 to 360 to get more precise value.
 
     NPoints = 250 (int) defines number of vectors v on sphere (see article). You can increase it to get result more precise.
